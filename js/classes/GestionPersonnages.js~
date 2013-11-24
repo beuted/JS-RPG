@@ -1,0 +1,16 @@
+function GestionPersonnages(ennemis) {
+    this.ennemis = ennemis;
+}
+
+//Deplacement ennemis
+GestionPersonnages.prototype.deplacerEnnemis = function(map, joueur) {
+    for (var i = 0 ; i < this.ennemis.length ;  i++) {
+	if (this.ennemis[i].sante > 0) {
+            this.ennemis[i].deplacerIA(map, joueur, this.ennemis, joueur);
+	} else {
+	    map.supprPersonnage(this.ennemis[i].x,this.ennemis[i].y); 
+	    this.ennemis.splice(i,1);
+	}
+    }
+}
+

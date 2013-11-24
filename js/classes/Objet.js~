@@ -1,0 +1,15 @@
+// IMPORTANT : Lorsque "skin" d'un objet vaut 0 il est considéré comme inexistant.
+
+function Objet(etage,mapx,mapy,x,y,skin,degat,armure) {
+    // Position de l'objet sur la carte
+        this.etage = etage;
+        this.mapx = mapx;
+        this.mapy = mapy;
+        this.x = x;
+        this.y = y;
+    
+        this.skin = skin;
+    // Bonus que l'objet confere
+        this.degat = degat;
+        this.armure = armure;
+}

@@ -1,0 +1,2 @@
+function Inventaire(url, x, y, direction, alignement, force) {
+}

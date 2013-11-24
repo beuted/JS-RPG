@@ -1,0 +1,221 @@
+var MATERIAUX = {
+        "RIEN"    : 0,
+	"BOIS"    : 1,
+        "FER"     : 2,
+	"ACIER"   : 3,
+        "DIAMANT" : 4,
+        "OR"      : 5
+}
+
+var ARMURE = {
+        "CASQUE"     : 0,
+	"TORSE"      : 1,
+        "JAMBIERES"  : 2,
+	"CHAUSSURES" : 3,
+        "ARME"       : 4
+}
+
+var OBJET = {
+    "RIEN"             : 0,
+    "CASQUECUIR"       : 11,
+    "CASQUEFER"        : 12,
+    "CASQUEACIER"      : 13,
+    "CASQUEDIAMANT"    : 14,
+    "CASQUEOR"         : 15,
+    "ARMURECUIR"       : 20,
+    "ARMUREFER"        : 21,
+    "ARMUREACIER"      : 22,
+    "ARMUREDIAMANT"    : 23,
+    "ARMUREOR"         : 24,
+    "JAMBIERESCUIR"    : 30,
+    "JAMBIERESFER"     : 31,
+    "JAMBIERESACIER"   : 32,
+    "JAMBIERESDIAMANT" : 33,
+    "JAMBIERESOR"      : 34,
+    "CHAUSSURESCUIR"   : 40,
+    "CHAUSSURESFER"    : 41,
+    "CHAUSSURESACIER"  : 42,
+    "CHAUSSURESDIAMANT": 43,
+    "CHAUSSURESOR"     : 44,
+    "EPEEBOIS"         : 50,
+    "EPEEFER"          : 51,
+    "EPEEACIER"        : 52,
+    "EPEEDIAMANT"      : 53,
+    "EPEEOR"           : 54,
+    "ARC"              : 60,
+    "POTION"           : 70,
+    "PARCHEMIN"        : 80
+}
+
+function Inventaire(url1, url2, carte) {
+
+    // Chargement de l'image pr le stuff ////////////////////////////////
+    this.imgstuff = new Image();
+    this.imgstuff.referenceItem = this;
+    this.imgstuff.onload = function() {
+	if(!this.complete) 
+	    throw "Erreur de chargement du sprite nommé \"" + url1 + "\".";
+
+	this.referenceItem.largeur = this.width /6;
+	this.referenceItem.hauteur = this.height /5;
+    }
+    this.imgstuff.src = "sprites/" + url1;
+
+    // Chargement de l'image pour l'inventaire ///////////////////////////
+    this.imginventaire = new Image();
+    this.imginventaire.referenceItem = this;
+    this.imginventaire.onload = function() {
+	if(!this.complete) 
+	    throw "Erreur de chargement du sprite nommé \"" + url + "\".";
+	
+	// Taille du personnage
+	//this.referenceItem.largeur = this.width /6;
+	//this.referenceItem.hauteur = this.height /5;
+    }
+    this.imginventaire.src = "sprites/" + url2;
+    //////////////////////////////////////////////////////////////////////
+
+    this.armure = [MATERIAUX.RIEN, MATERIAUX.OR, MATERIAUX.FER, MATERIAUX.DIAMANT, MATERIAUX.BOIS];
+
+    // liste des objets dans l'inventaire
+    var objettest = new Objet(0,0,0,5,5,21,0,0);
+    var objetvide = new Objet(0,0,0,0,0,0,0,0);
+    this.sac = new Array(25);
+    for (var i = 0 ; i < this.sac.length ;  i++) {
+	this.sac[i] = objetvide;
+    } //PB a cause des pointeurs ?
+
+    this.sac[1] = objettest;
+
+    // objet selectionné
+    this.numObjetSelect = -1;
+
+}
+
+Inventaire.prototype.ajouterObjetInv = function(objet) {
+    for (var i = 0 ; i < this.sac.length ;  i++) {
+	if (this.sac[i].skin == 0) {
+	    this.sac[i] = objet;
+	    return false;
+	}	
+    }
+    alert("Votre sac est plein");
+}
+
+Inventaire.prototype.retirerObjetInv = function(indObjet) {
+    if (indObjet < 0 || indObjet > this.sac.length) {
+	throw new Error("Erreur : tentative de déposer un objet inexistant");
+    } else {
+	this.sac[indObjet] = new Objet(0,0,0,0,0,0,0,0);
+    }
+}
+
+// Ramasser un objet sur la carte
+Inventaire.prototype.ramasserObjet = function(personnage, map, msg, ctx) {
+    var indiceobj = map.presenceObjet(map.etage,map.x,map.y,personnage.x,personnage.y);
+    if (indiceobj == -1) {
+	alert("Il n'y a rien a ramasser la ou vous vous trouvez");
+    } else {
+	// On ajoute l'objet dans l'inventaire
+	this.ajouterObjetInv(map.objets_etage[map.etage][indiceobj]);
+	// On affiche les ppte de l'objet
+	msg.infoObjet(map.objets_etage[map.etage][indiceobj],ctx);
+	// On le retire de la map
+	map.objets_etage[map.etage].splice(indiceobj,1);
+	
+    }
+}
+
+Inventaire.prototype.poserObjet = function(personnage, map, i) {
+    var indiceobj = map.presenceObjet(map.etage,map.x,map.y,personnage.x,personnage.y);
+    if (indiceobj != -1) {
+	alert("Il y a deja un objet au sol la ou vous vous trouvez");
+    } else {
+	// On l'ajoute a la map
+	map.objets_etage[personnage.etage].push(this.sac[i]);
+	// On le met au bonne endroit
+	map.objets_etage[personnage.etage][map.objets_etage.length].etage = personnage.etage
+	map.objets_etage[personnage.etage][map.objets_etage.length].mapx = personnage.xMap
+	map.objets_etage[personnage.etage][map.objets_etage.length].mapy = personnage.yMap
+	map.objets_etage[personnage.etage][map.objets_etage.length].x = personnage.x
+	map.objets_etage[personnage.etage][map.objets_etage.length].y = personnage.y
+	// On retire l'objet dans l'inventaire
+	this.retirerObjetInv(i);
+    }
+}
+
+Inventaire.prototype.dessinerInventaire = function(context, personnage) {
+
+    // fond de l'inventaire
+
+    context.drawImage(
+	this.imginventaire, 
+	16*32, 1*32, // Point d'origine du rectangle source à prendre dans notre image
+	250, 250, // Taille du rectangle source
+	map.getLargeur() * 16 , 0, // Point de destination 
+	250, 250  // Taille du rectangle destination (c'est la taille du personnage)
+    );
+    
+    // vie, force ...
+    context.strokeText("vie : " + personnage.sante, map.getLargeur()*16 + 16, 210);
+    context.strokeText("def : " + personnage.force, map.getLargeur()*16 + 16, 230);
+    context.strokeText("frc : " + personnage.force, map.getLargeur()*16 + 72, 210);
+    context.strokeText("int : " + personnage.force, map.getLargeur()*16 + 72, 230);
+    context.strokeText("dex : " + personnage.force, map.getLargeur()*16 + 116, 210);
+
+
+    // Affichage des armures et armes en main //////////////////////////////
+    for (var i = 0 ; i < 5 ;  i++) {  
+	context.drawImage(
+	    this.imgstuff, 
+	    this.armure[i]*32, i*32, // Point d'origine du rectangle source à prendre dans notre image
+	    32, 32, // Taille du rectangle source
+	    map.getLargeur() * 16 + 14, i*32 +8, // Point de destination 
+	    32, 32 // Taille du rectangle destination (c'est la taille du personnage)
+	);
+    }
+
+    // Affichage de l'inventaire ///////////////////////////////////////////
+
+    for (var i = 0 ; i < 5 ;  i++) {
+	for (var j = 0 ; j < 5 ;  j++) {
+	    var xtemp = this.sac[i*5+j].skin % 19;
+	    if(xtemp == 0) xtemp = 19;
+	    var ytemp = Math.ceil(this.sac[i*5+j].skin / 19);;
+	    context.drawImage(
+	    this.imginventaire, 
+	    xtemp*32, ytemp*32, // Point d'origine du rectangle source à prendre dans notre image
+	    32, 32, // Taille du rectangle source
+	    map.getLargeur() * 16 + 58 +j*36, i*36 +16, // Point de destination 
+	    32, 32 // Taille du rectangle destination (c'est la taille du personnage)
+	    );
+	}	
+    }
+}
+
+Inventaire.prototype.clickInv = function(coords,msg,map,personnage,context) {
+    for (var i = 0 ; i < 5 ;  i++) {
+	for (var j = 0 ; j < 5 ;  j++) {
+	    if(coords.x >= map.getLargeur()*16+58+j*36 &&
+	       coords.x <= map.getLargeur()*16+58+j*36 + 32 &&
+	       coords.y >= i*36 +16 && coords.y <= i*36 +16 + 32) {
+		msg.infoObjet(this.sac[i*5+j],context);
+		msg.dessinerBoutons(context,1,1);
+		// On retient l'emplacement dans le sac de l'objet selectionné
+		this.numObjetSelect = i*5+j;
+		return false;
+	    }
+	}
+    }
+    
+    // Si on click sur le bouton deposer
+    if(coords.x >= 425 && coords.x <= 425 + 57 &&
+       coords.y >= 15*16+8 && coords.y <=  15*16+8+19) {
+	if(this.numObjetSelect >=0 && this.numObjetSelect <=this.sac.length ) {
+	    this.poserObjet(personnage,map,this.numObjetSelect)
+	} else {
+	    throw new Error("Erreur : tentative de deposer un objet inexistant");
+	}
+	    
+    }
+}
