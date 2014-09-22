@@ -1,4 +1,5 @@
-2011 :
+JS-RPG : 2011
+=============
 
 RPG dev in js to discover this language.
 I stopped this project when I failed to give it an online aspect.
