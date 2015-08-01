@@ -8,6 +8,8 @@ I stopped this project when I failed to give it an online aspect. (Didn't knew m
 - Algorithm for the personnage view (inspired by nethack)
 - Inventory system managed with mouse
 
+##[Demo](http://perso.csgo-mats.com/js-rpg)
+
 To play
 -------
 
