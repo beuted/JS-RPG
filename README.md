@@ -8,7 +8,7 @@ I stopped this project when I failed to give it an online aspect. (Didn't knew m
 - Algorithm for the personnage view (inspired by nethack)
 - Inventory system managed with mouse
 
-##[Demo](https://js-rpg.herokuapp.com/index.html)
+## [Demo](https://js-rpg.herokuapp.com/index.html)
 
 To play
 -------
